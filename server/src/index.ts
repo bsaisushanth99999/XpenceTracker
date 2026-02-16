@@ -36,15 +36,15 @@ if (!process.env.VERCEL) {
     });
 }
 
-// Initialize DB and start server if not in Vercel (Serverless) mode
+// Initialize DB (Safe for both local and Turso)
+initDB().catch(err => {
+    console.error('Failed to initialize database:', err);
+});
+
+// Start server if not in Vercel (Serverless) mode
 if (!process.env.VERCEL) {
-    initDB().then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
-        });
-    }).catch(err => {
-        console.error('Failed to initialize database', err);
-        process.exit(1);
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
     });
 }
 
