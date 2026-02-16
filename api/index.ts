@@ -7,18 +7,13 @@ let initialized = false;
 export default async (req: any, res: any) => {
     try {
         // Vercel rewrites preserve the original path in req.url
-        // The rewrite sends /api/(.*) to this function, so req.url should be /api/transactions/...
         const originalUrl = req.url || req.path || '';
         
         console.log(`[Vercel Handler] ${req.method} ${originalUrl}`);
-        console.log(`[Vercel Handler] Original req.url:`, req.url);
-        console.log(`[Vercel Handler] Original req.path:`, req.path);
         
         // Ensure path starts with /api for Express routing
-        // With the rewrite rule, req.url should already include /api, but ensure it does
         if (!originalUrl.startsWith('/api')) {
             req.url = `/api${originalUrl.startsWith('/') ? originalUrl : '/' + originalUrl}`;
-            console.log(`[Vercel Handler] Adjusted URL to: ${req.url}`);
         }
         
         // Initialize database on cold start
@@ -29,11 +24,26 @@ export default async (req: any, res: any) => {
                 initialized = true;
                 console.log('[Vercel Handler] Database initialized successfully');
             } catch (err) {
-                console.error('[Vercel Handler] Failed to initialize database:', err);
+                console.error('[Vercel Handler] Database init error:', err);
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                const errorStack = err instanceof Error ? err.stack : 'No stack';
+                console.error('[Vercel Handler] Full error:', {
+                    message: errorMessage,
+                    stack: errorStack,
+                    env: {
+                        hasLibsqlUrl: !!process.env.LIBSQL_URL,
+                        hasLibsqlToken: !!process.env.LIBSQL_AUTH_TOKEN,
+                        vercel: !!process.env.VERCEL
+                    }
+                });
+                
                 if (!res.headersSent) {
                     res.status(500).json({ 
                         error: 'Database initialization failed', 
-                        details: err instanceof Error ? err.message : String(err) 
+                        details: errorMessage,
+                        hint: process.env.VERCEL && !process.env.LIBSQL_URL 
+                            ? 'LIBSQL_URL environment variable is required' 
+                            : 'Check Vercel logs for details'
                     });
                 }
                 return;
@@ -41,14 +51,18 @@ export default async (req: any, res: any) => {
         }
         
         // Handle the request with Express app
-        // Vercel's req/res are compatible with Express
+        // Vercel's req/res objects are compatible with Express
         app(req, res);
     } catch (error) {
         console.error('[Vercel Handler] Unhandled error:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorStack = error instanceof Error ? error.stack : 'No stack';
+        console.error('[Vercel Handler] Error stack:', errorStack);
+        
         if (!res.headersSent) {
             res.status(500).json({ 
                 error: 'Internal server error',
-                details: error instanceof Error ? error.message : String(error)
+                details: errorMessage
             });
         }
     }
