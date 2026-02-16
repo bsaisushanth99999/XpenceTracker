@@ -9,12 +9,12 @@ export interface ParsedRow {
     type: 'income' | 'expense';
 }
 
-// Flexible column name mapping
+// Flexible column name mapping (include common bank/export formats like "To", "Payee")
 const COLUMN_MAP: Record<string, string[]> = {
     date: ['date', 'transaction_date', 'trans_date', 'txn_date', 'Date'],
     amount: ['amount', 'value', 'sum', 'total', 'Amount'],
     category: ['category', 'cat', 'group', 'Category'],
-    description: ['description', 'desc', 'memo', 'note', 'Description', 'Memo'],
+    description: ['description', 'desc', 'memo', 'note', 'Description', 'Memo', 'To', 'Payee', 'From', 'Narration'],
     notes: ['notes', 'note', 'comment', 'comments', 'Notes'],
     type: ['type', 'transaction_type', 'txn_type', 'kind', 'Type'],
 };
@@ -32,19 +32,21 @@ function findColumn(headers: string[], candidates: string[]): string | null {
 function normalizeDate(raw: string): string {
     // Try parsing various date formats
     const trimmed = raw.trim();
+    // Strip time part if present (e.g. "01/02/2026 08:43:56" or "2026-01-02 10:00:00")
+    const datePart = trimmed.split(/\s+/)[0];
 
     // Already ISO format (YYYY-MM-DD)
-    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return datePart;
 
-    // MM/DD/YYYY or M/D/YYYY
-    const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    // DD/MM/YYYY or D/M/YYYY (date with optional time) - common in bank exports
+    const slashMatch = datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
     if (slashMatch) {
-        const [, m, d, y] = slashMatch;
+        const [, d, m, y] = slashMatch;
         return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
     }
 
     // DD-MM-YYYY
-    const dashMatch = trimmed.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    const dashMatch = datePart.match(/^(\d{2})-(\d{2})-(\d{4})$/);
     if (dashMatch) {
         const [, d, m, y] = dashMatch;
         return `${y}-${m}-${d}`;
@@ -56,7 +58,7 @@ function normalizeDate(raw: string): string {
         return parsed.toISOString().split('T')[0];
     }
 
-    return trimmed;
+    return datePart || trimmed;
 }
 
 function normalizeAmount(raw: string | number): number {
@@ -74,7 +76,7 @@ function normalizeType(raw: string): 'income' | 'expense' {
     return 'expense';
 }
 
-export function parseCSV(buffer: Buffer): ParsedRow[] {
+export function parseCSV(buffer: { toString(encoding?: string): string }): ParsedRow[] {
     const content = buffer.toString('utf-8');
     const records = parse(content, {
         columns: true,
@@ -99,11 +101,11 @@ export function parseCSV(buffer: Buffer): ParsedRow[] {
     }
 
     return records.map((row) => ({
-        date: normalizeDate(row[dateCol] || ''),
-        amount: normalizeAmount(row[amountCol] || '0'),
-        category: row[categoryCol!] || 'Uncategorized',
-        description: row[descCol!] || '',
-        notes: row[notesCol!] || '',
-        type: typeCol ? normalizeType(row[typeCol]) : 'expense',
+        date: normalizeDate(row[dateCol] ?? ''),
+        amount: normalizeAmount(row[amountCol] ?? '0'),
+        category: (categoryCol ? row[categoryCol]?.trim() : null) || 'Uncategorized',
+        description: (descCol ? row[descCol]?.trim() : null) || '',
+        notes: (notesCol ? row[notesCol]?.trim() : null) || '',
+        type: typeCol ? normalizeType(row[typeCol] ?? '') : 'expense',
     }));
 }
