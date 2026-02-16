@@ -5,6 +5,7 @@ let initialized = false;
 
 // Vercel Serverless Function handler with explicit initialization
 export default async (req: any, res: any) => {
+    console.log(`Incoming request: ${req.method} ${req.url}`);
     if (!initialized) {
         console.log('Serverless cold start: Initializing database...');
         try {
