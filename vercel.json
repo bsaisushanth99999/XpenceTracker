@@ -2,7 +2,7 @@
     "version": 2,
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
-    "installCommand": "npm install --include=optional --legacy-peer-deps",
+    "installCommand": "npm install --include=optional",
     "rewrites": [
         {
             "source": "/api/(.*)",
@@ -12,7 +12,8 @@
     "functions": {
         "api/index.ts": {
             "includeFiles": "server/**",
-            "memory": 1024
+            "memory": 1024,
+            "maxDuration": 30
         }
     }
 }
