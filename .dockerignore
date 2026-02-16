@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+.DS_Store
+expense-tracker.db
+server/data/*.db
+client/dist
+server/dist

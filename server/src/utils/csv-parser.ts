@@ -1,0 +1,109 @@
+import { parse } from 'csv-parse/sync';
+
+export interface ParsedRow {
+    date: string;
+    amount: number;
+    category: string;
+    description: string;
+    notes: string;
+    type: 'income' | 'expense';
+}
+
+// Flexible column name mapping
+const COLUMN_MAP: Record<string, string[]> = {
+    date: ['date', 'transaction_date', 'trans_date', 'txn_date', 'Date'],
+    amount: ['amount', 'value', 'sum', 'total', 'Amount'],
+    category: ['category', 'cat', 'group', 'Category'],
+    description: ['description', 'desc', 'memo', 'note', 'Description', 'Memo'],
+    notes: ['notes', 'note', 'comment', 'comments', 'Notes'],
+    type: ['type', 'transaction_type', 'txn_type', 'kind', 'Type'],
+};
+
+function findColumn(headers: string[], candidates: string[]): string | null {
+    for (const candidate of candidates) {
+        const found = headers.find(
+            (h) => h.trim().toLowerCase() === candidate.toLowerCase()
+        );
+        if (found) return found;
+    }
+    return null;
+}
+
+function normalizeDate(raw: string): string {
+    // Try parsing various date formats
+    const trimmed = raw.trim();
+
+    // Already ISO format (YYYY-MM-DD)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+
+    // MM/DD/YYYY or M/D/YYYY
+    const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (slashMatch) {
+        const [, m, d, y] = slashMatch;
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    }
+
+    // DD-MM-YYYY
+    const dashMatch = trimmed.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (dashMatch) {
+        const [, d, m, y] = dashMatch;
+        return `${y}-${m}-${d}`;
+    }
+
+    // Fallback: try Date constructor
+    const parsed = new Date(trimmed);
+    if (!isNaN(parsed.getTime())) {
+        return parsed.toISOString().split('T')[0];
+    }
+
+    return trimmed;
+}
+
+function normalizeAmount(raw: string | number): number {
+    if (typeof raw === 'number') return Math.abs(raw);
+    // Remove currency symbols, commas, spaces
+    const cleaned = raw.replace(/[^0-9.\-]/g, '');
+    return Math.abs(parseFloat(cleaned) || 0);
+}
+
+function normalizeType(raw: string): 'income' | 'expense' {
+    const lower = raw.trim().toLowerCase();
+    if (['income', 'credit', 'deposit', 'salary', 'earning'].includes(lower)) {
+        return 'income';
+    }
+    return 'expense';
+}
+
+export function parseCSV(buffer: Buffer): ParsedRow[] {
+    const content = buffer.toString('utf-8');
+    const records = parse(content, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+        bom: true,
+    }) as Record<string, string>[];
+
+    if (records.length === 0) return [];
+
+    const headers = Object.keys(records[0]);
+
+    const dateCol = findColumn(headers, COLUMN_MAP.date);
+    const amountCol = findColumn(headers, COLUMN_MAP.amount);
+    const categoryCol = findColumn(headers, COLUMN_MAP.category);
+    const descCol = findColumn(headers, COLUMN_MAP.description);
+    const notesCol = findColumn(headers, COLUMN_MAP.notes);
+    const typeCol = findColumn(headers, COLUMN_MAP.type);
+
+    if (!dateCol || !amountCol) {
+        throw new Error('CSV must contain at least "date" and "amount" columns');
+    }
+
+    return records.map((row) => ({
+        date: normalizeDate(row[dateCol] || ''),
+        amount: normalizeAmount(row[amountCol] || '0'),
+        category: row[categoryCol!] || 'Uncategorized',
+        description: row[descCol!] || '',
+        notes: row[notesCol!] || '',
+        type: typeCol ? normalizeType(row[typeCol]) : 'expense',
+    }));
+}

@@ -1,0 +1,17 @@
+{
+    "name": "expense-tracker-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "client",
+        "server"
+    ],
+    "scripts": {
+        "build": "cd client && npm install && npm run build",
+        "postinstall": "echo 'Workspaces installed'"
+    },
+    "dependencies": {
+        "typescript": "^5.7.0",
+        "tsx": "^4.19.0"
+    }
+}
