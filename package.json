@@ -7,7 +7,7 @@
         "server"
     ],
     "scripts": {
-        "build": "npm run build --workspace=client && rm -rf dist && cp -r client/dist ./dist",
+        "build": "npm run build --workspace=client && mkdir -p dist && rm -rf dist/* && cp -r client/dist/* dist/",
         "postinstall": "echo 'Workspaces installed'"
     },
     "dependencies": {

@@ -13,11 +13,19 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// API Routes
-app.use('/api/transactions', transactionsRouter);
-app.use('/api/goals', goalsRouter);
-app.use('/api/income', incomeRouter);
-app.get('/api/health', (_req, res) => {
+// API Routes - Mounted at both /api and root for Vercel/Local compatibility
+const routes = [
+    { path: '/transactions', router: transactionsRouter },
+    { path: '/goals', router: goalsRouter },
+    { path: '/income', router: incomeRouter }
+];
+
+routes.forEach(({ path: routePath, router }) => {
+    app.use(`/api${routePath}`, router);
+    app.use(routePath, router);
+});
+
+app.get(['/api/health', '/health'], (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
