@@ -1,5 +1,7 @@
 {
     "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
     "rewrites": [
         {
             "source": "/api/(.*)",
@@ -8,7 +10,7 @@
     ],
     "functions": {
         "api/index.ts": {
-            "includeFiles": "server/data/**"
+            "includeFiles": "server/**"
         }
     }
 }
