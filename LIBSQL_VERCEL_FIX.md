@@ -8,15 +8,15 @@ Vercel serverless functions crash with: `Cannot find module '@libsql/linux-x64-g
 
 ## Fixes Applied
 
-1. **Added explicit dependency** in `server/package.json`:
-   - Added `"@libsql/linux-x64-gnu": "^0.17.0"` as a direct dependency
+1. **Removed explicit dependency** (it was causing build failures):
+   - Removed `"@libsql/linux-x64-gnu": "^0.17.0"` from both `server/package.json` and root `package.json`
+   - The version `0.17.0` doesn't exist for this package (latest is `0.5.22`)
+   - `@libsql/client` automatically installs the correct platform-specific package as an optional dependency
 
-2. **Added to root package.json**:
-   - Ensures the dependency is available at the root level for Vercel's bundling
-
-3. **Updated Vercel install command**:
-   - Changed to `npm install --include=optional --legacy-peer-deps`
-   - Ensures optional dependencies (like platform-specific binaries) are installed
+2. **Updated Vercel install command**:
+   - Changed to `npm install --include=optional`
+   - Ensures optional dependencies (like platform-specific binaries) are installed during build
+   - The `@libsql/client` package will automatically pull in `@libsql/linux-x64-gnu` for Vercel's Linux x64 environment
 
 ## Next Steps
 
