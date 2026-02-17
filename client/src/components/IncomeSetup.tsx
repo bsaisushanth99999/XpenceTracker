@@ -3,25 +3,28 @@ import { MonthlyIncome } from '../types';
 
 interface IncomeSetupProps {
     onComplete: () => void;
+    onCancel?: () => void;
+    month?: string;
 }
 
-export default function IncomeSetup({ onComplete }: IncomeSetupProps) {
+export default function IncomeSetup({ onComplete, onCancel, month }: IncomeSetupProps) {
     const [amount, setAmount] = useState('');
     const [saving, setSaving] = useState(false);
 
-    const currentMonth = new Date().toISOString().slice(0, 7);
-    const displayMonth = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long' });
+    const targetMonth = month || new Date().toISOString().slice(0, 7);
+    const displayMonth = new Date(targetMonth + '-01').toLocaleDateString('en-IN', { year: 'numeric', month: 'long' });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount || parseFloat(amount) < 0) return;
+        const parsed = parseFloat(amount);
+        if (isNaN(parsed) || parsed < 0) return;
 
         setSaving(true);
         try {
             await fetch('/api/income', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: parseFloat(amount), month: currentMonth }),
+                body: JSON.stringify({ amount: parsed, month: targetMonth }),
             });
             onComplete();
         } catch (err) {
@@ -41,9 +44,9 @@ export default function IncomeSetup({ onComplete }: IncomeSetupProps) {
                         <circle cx="16" cy="20" r="3" stroke="currentColor" strokeWidth="1.5" />
                     </svg>
                 </div>
-                <h2>Set Monthly Income</h2>
+                <h2>{month ? 'Edit Income' : 'Set Monthly Income'}</h2>
                 <p className="income-modal-desc">
-                    Enter your income for <strong>{displayMonth}</strong>. This resets on the 1st of each month.
+                    Enter your income for <strong>{displayMonth}</strong>.
                 </p>
                 <form onSubmit={handleSubmit}>
                     <div className="income-input-wrapper">
@@ -59,9 +62,16 @@ export default function IncomeSetup({ onComplete }: IncomeSetupProps) {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn-primary income-submit" disabled={saving}>
-                        {saving ? 'Saving…' : 'Save Income'}
-                    </button>
+                    <div className="income-modal-actions">
+                        {onCancel && (
+                            <button type="button" className="btn-secondary" onClick={onCancel} disabled={saving}>
+                                Cancel
+                            </button>
+                        )}
+                        <button type="submit" className="btn-primary income-submit" disabled={saving}>
+                            {saving ? 'Saving…' : 'Save Income'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
