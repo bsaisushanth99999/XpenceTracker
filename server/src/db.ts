@@ -64,6 +64,18 @@ export async function initDB() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       )` }
     ]);
+
+    // Migration: Add saved_amount column to goals table if it doesn't exist.
+    // This handles databases created before saved_amount was added.
+    // Must be OUTSIDE the batch because ALTER TABLE fails if the column
+    // already exists, and batch() is atomic (one failure kills everything).
+    try {
+      await db.execute(`ALTER TABLE goals ADD COLUMN saved_amount REAL DEFAULT 0`);
+    } catch (err: any) {
+      // "duplicate column name" means the column already exists — expected and safe to ignore
+      if (!err.message?.includes('duplicate column name')) throw err;
+    }
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
