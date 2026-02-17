@@ -586,23 +586,25 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 10px 16px;
   border: 1px dashed var(--border);
   border-radius: var(--radius);
   background: var(--bg);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   width: 100%;
+  min-height: 48px;
 }
 
 .upload-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: var(--surface);
+  background: var(--surface-hover);
+  transform: translateY(-1px);
 }
 
 .upload-btn[data-uploading="true"] {
@@ -1322,4 +1324,102 @@ textarea {
 .btn-danger:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* --- Settings Page --- */
+.settings-page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.settings-card.destructive {
+  border-color: rgba(244, 63, 94, 0.3);
+  background: linear-gradient(to bottom right, var(--surface), var(--expense-bg));
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.upload-icon {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+.reset-icon {
+  background: var(--expense-bg);
+  color: var(--expense);
+}
+
+.card-title h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.card-title p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.card-action {
+  margin-top: auto;
+}
+
+/* Sidebar Settings Link */
+.settings-link {
+  color: var(--text-muted);
+}
+
+.settings-link:hover {
+  color: var(--text);
+}
+
+.settings-link.active {
+  color: var(--accent);
+  background: var(--surface-hover);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
 }

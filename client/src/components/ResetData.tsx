@@ -22,24 +22,7 @@ export default function ResetData() {
             <button
                 className="header-reset-btn"
                 onClick={() => setShowReset(true)}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 24px',
-                    backgroundColor: '#fff1f2',
-                    border: '2px solid #f43f5e',
-                    borderRadius: '8px',
-                    color: '#f43f5e',
-                    fontSize: '14px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    zIndex: 2002,
-                    minWidth: '200px',
-                    justifyContent: 'center'
-                }}
+                style={{}}
             >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ minWidth: '14px' }}>
                     <path d="M2 4h12M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
