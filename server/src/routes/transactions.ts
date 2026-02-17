@@ -249,12 +249,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
 });
 
-// DELETE /api/transactions (CLEAR ALL)
+// DELETE /api/transactions (CLEAR ALL — full reset)
 router.delete('/', async (req: Request, res: Response) => {
     try {
         await db.execute('DELETE FROM transactions');
-        // await db.execute('DELETE FROM monthly_income'); 
-        res.json({ success: true, message: 'All transactions cleared' });
+        await db.execute('DELETE FROM monthly_income');
+        await db.execute('DELETE FROM goals');
+        res.json({ success: true, message: 'All data cleared — clean slate' });
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ error: err.message });
