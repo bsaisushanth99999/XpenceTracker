@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function ResetData() {
     const [showReset, setShowReset] = useState(false);
@@ -30,8 +31,8 @@ export default function ResetData() {
                 <span>RESET ALL DATA</span>
             </button>
 
-            {/* Confirmation modal */}
-            {showReset && (
+            {/* Confirmation modal rendered via Portal */}
+            {showReset && createPortal(
                 <div className="modal-overlay" onClick={() => !resetting && setShowReset(false)}>
                     <div className="modal-box destructive" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-icon">🚨</div>
@@ -54,7 +55,8 @@ export default function ResetData() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </>
     );

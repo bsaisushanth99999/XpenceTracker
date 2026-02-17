@@ -1187,7 +1187,6 @@ textarea {
   white-space: nowrap;
   min-width: 200px;
   justify-content: center;
-  z-index: 2001;
   /* Ensure text is above everything */
 }
 
@@ -1239,7 +1238,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 3000;
   backdrop-filter: blur(8px);
   padding: 20px;
 }
