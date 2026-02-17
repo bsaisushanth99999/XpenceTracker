@@ -1,25 +1,18 @@
 import { useFilters } from '../context/FilterContext';
-import { useCategories } from '../hooks/useTransactions';
-
-function getMonthOptions(): { value: string; label: string }[] {
-    const options: { value: string; label: string }[] = [];
-    const now = new Date();
-    // Show last 12 months + current
-    for (let i = 0; i < 13; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const val = `${y}-${m}`;
-        const label = d.toLocaleDateString('en-IN', { year: 'numeric', month: 'long' });
-        options.push({ value: val, label });
-    }
-    return options;
-}
+import { useCategories, useMonths } from '../hooks/useTransactions';
 
 export default function FilterBar() {
     const { filters, setFilters, resetFilters } = useFilters();
     const categories = useCategories();
-    const monthOptions = getMonthOptions();
+    const months = useMonths();
+
+    const monthOptions = months.map(m => {
+        const [y, mm] = m.split('-').map(Number);
+        return {
+            value: m,
+            label: new Date(y, mm - 1, 1).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })
+        };
+    });
 
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;

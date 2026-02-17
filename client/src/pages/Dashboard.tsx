@@ -30,7 +30,9 @@ export default function Dashboard() {
 
             let targetMonth = filters.month;
             if (targetMonth === 'all') {
-                setMonthlyIncome(null); // Will fallback to summary.totalIncome
+                const res = await fetch('/api/income/total');
+                const data = await res.json();
+                setMonthlyIncome(data.total);
                 setShowIncomeSetup(false);
             } else {
                 const res = await fetch(`/api/income/${targetMonth}`);

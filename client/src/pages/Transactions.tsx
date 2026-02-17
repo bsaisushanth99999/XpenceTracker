@@ -65,7 +65,7 @@ export default function Transactions() {
                                 <div className="month-header">
                                     <h3>{monthLabel}</h3>
                                     <div className="month-summary">
-                                        <span className="income">+{fmt(income)}</span>
+                                        {income > 0 && <span className="income">+{fmt(income)}</span>}
                                         <span className="expense">−{fmt(expenses)}</span>
                                     </div>
                                 </div>

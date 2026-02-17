@@ -92,6 +92,19 @@ export function useTimeSeries() {
     return data;
 }
 
+export function useMonths() {
+    const [months, setMonths] = useState<string[]>([]);
+
+    useEffect(() => {
+        fetch(`${API}/months`)
+            .then((r) => r.json())
+            .then(setMonths)
+            .catch(console.error);
+    }, []);
+
+    return months;
+}
+
 export function useCategories() {
     const [categories, setCategories] = useState<string[]>([]);
 

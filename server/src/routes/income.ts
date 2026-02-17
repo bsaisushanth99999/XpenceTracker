@@ -3,6 +3,17 @@ import { db } from '../db';
 
 const router = Router();
 
+// GET /api/income/total - Get sum of all budgeted incomes
+router.get('/total', async (_req: Request, res: Response) => {
+    try {
+        const result = await db.execute('SELECT SUM(amount) as total FROM monthly_income');
+        res.json({ total: result.rows[0]?.total || 0 });
+    } catch (err: any) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // GET /api/income/:month - Get budgeted income for a specific month
 router.get('/:month', async (req: Request, res: Response) => {
     try {

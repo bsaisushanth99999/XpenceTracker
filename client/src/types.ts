@@ -37,6 +37,7 @@ export interface Goal {
     id: number;
     name: string;
     target_amount: number;
+    saved_amount: number;
     created_at: string;
 }
 

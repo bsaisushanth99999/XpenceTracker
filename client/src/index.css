@@ -731,8 +731,59 @@ textarea {
 }
 
 .goal-target {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.goal-progress-container {
+  width: 100%;
+  margin: 12px 0;
+}
+
+.goal-progress-bar {
+  height: 8px;
+  background: var(--surface-hover);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.goal-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.goal-progress-stats {
+  display: flex;
+  justify-content: space-between;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.goal-card.completed {
+  background: var(--income-bg);
+  border-color: var(--income);
+}
+
+.goal-card.completed .goal-progress-fill {
+  background: var(--income);
+}
+
+.goal-card.completed .progress-pct {
+  color: var(--income);
+  font-weight: 700;
+}
+
+.goal-savings-input {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 .goal-edit {

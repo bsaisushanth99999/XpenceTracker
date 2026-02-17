@@ -31,35 +31,44 @@ export const db = createClient({
 
 export async function initDB() {
   try {
-    // LibSQL batch expects array of {sql, args} objects
-    await db.batch([
-      { sql: `CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        amount REAL NOT NULL,
-        category TEXT NOT NULL,
-        description TEXT NOT NULL,
-        notes TEXT,
-        type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
-        fingerprint TEXT UNIQUE NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
-      )` },
-      { sql: `CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date)` },
-      { sql: `CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type)` },
-      { sql: `CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category)` },
-      { sql: `CREATE INDEX IF NOT EXISTS idx_transactions_fingerprint ON transactions(fingerprint)` },
-      { sql: `CREATE TABLE IF NOT EXISTS goals (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        target_amount REAL NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
-      )` },
-      { sql: `CREATE TABLE IF NOT EXISTS monthly_income (
-        month TEXT PRIMARY KEY NOT NULL,
-        amount REAL NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
-      )` }
-    ]);
+    await db.execute(`CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      amount REAL NOT NULL,
+      category TEXT NOT NULL,
+      description TEXT NOT NULL,
+      notes TEXT,
+      type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+      fingerprint TEXT UNIQUE NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`);
+
+    await db.execute(`CREATE TABLE IF NOT EXISTS goals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      target_amount REAL NOT NULL,
+      saved_amount REAL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`);
+
+    await db.execute(`CREATE TABLE IF NOT EXISTS monthly_income (
+      month TEXT PRIMARY KEY,
+      amount REAL NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`);
+
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date)`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type)`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category)`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_transactions_fingerprint ON transactions(fingerprint)`);
+
+    // Migration: Add saved_amount if it doesn't exist (fails gracefully if exists)
+    try {
+      await db.execute(`ALTER TABLE goals ADD COLUMN saved_amount REAL DEFAULT 0`);
+    } catch (err: any) {
+      if (!err.message.includes('duplicate column name')) throw err;
+    }
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);

@@ -129,6 +129,17 @@ router.get('/over-time', async (req: Request, res: Response) => {
     }
 });
 
+// GET /api/transactions/months — list distinct months for filtering
+router.get('/months', async (_req: Request, res: Response) => {
+    try {
+        const result = await db.execute("SELECT DISTINCT substr(date, 1, 7) as month FROM transactions ORDER BY month DESC");
+        res.json(result.rows.map((r: any) => r.month));
+    } catch (err: any) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // GET /api/transactions/categories
 router.get('/categories', async (_req: Request, res: Response) => {
     try {

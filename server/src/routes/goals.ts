@@ -16,7 +16,7 @@ router.get('/', async (_req: Request, res: Response) => {
 
 // POST /api/goals
 router.post('/', async (req: Request, res: Response) => {
-    const { name, target_amount } = req.body;
+    const { name, target_amount, saved_amount } = req.body;
     if (!name || !target_amount) {
         res.status(400).json({ error: 'Name and target amount required' });
         return;
@@ -24,10 +24,10 @@ router.post('/', async (req: Request, res: Response) => {
 
     try {
         const result = await db.execute({
-            sql: 'INSERT INTO goals (name, target_amount) VALUES (?, ?)',
-            args: [String(name), Number(target_amount)]
+            sql: 'INSERT INTO goals (name, target_amount, saved_amount) VALUES (?, ?, ?)',
+            args: [String(name), Number(target_amount), Number(saved_amount || 0)]
         });
-        res.status(201).json({ id: result.lastInsertRowid?.toString(), name, target_amount });
+        res.status(201).json({ id: result.lastInsertRowid?.toString(), name, target_amount, saved_amount: saved_amount || 0 });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
@@ -35,13 +35,14 @@ router.post('/', async (req: Request, res: Response) => {
 
 // PUT /api/goals/:id
 router.put('/:id', async (req: Request, res: Response) => {
-    const { name, target_amount } = req.body;
+    const { name, target_amount, saved_amount } = req.body;
     try {
         const result = await db.execute({
-            sql: 'UPDATE goals SET name = COALESCE(?, name), target_amount = COALESCE(?, target_amount) WHERE id = ?',
+            sql: 'UPDATE goals SET name = COALESCE(?, name), target_amount = COALESCE(?, target_amount), saved_amount = COALESCE(?, saved_amount) WHERE id = ?',
             args: [
                 name !== undefined ? String(name) : null,
                 target_amount !== undefined ? Number(target_amount) : null,
+                saved_amount !== undefined ? Number(saved_amount) : null,
                 String(req.params.id)
             ]
         });
