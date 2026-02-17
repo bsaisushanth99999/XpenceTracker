@@ -143,20 +143,7 @@ textarea {
   color: #fff;
 }
 
-.theme-toggle-fixed {
-  position: fixed;
-  top: 12px;
-  right: 16px;
-  display: flex;
-  gap: 2px;
-  padding: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(12px);
-  z-index: 1000;
-}
+
 
 .theme-btn {
   display: flex;
@@ -1156,34 +1143,89 @@ textarea {
   font-style: italic;
 }
 
-/* --- Reset All Data & Modals --- */
-.top-reset-btn {
+/* --- Top Header Action Containers --- */
+.theme-action-container {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  z-index: 2000;
+}
+
+.reset-action-container {
+  position: fixed;
+  top: 16px;
+  right: 200px;
+  /* Force a 176px+ gap from the themes */
+  z-index: 2000;
+}
+
+
+
+
+.header-reset-btn {
   display: flex;
+  position: relative;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
+  gap: 12px;
+  padding: 12px 24px;
+  background-color: #fff1f2;
+  /* Explicit light red */
+  border: 2px solid #f43f5e;
+  /* Explicit red border */
+  border-radius: 8px;
+  color: #f43f5e;
+  /* Explicit red text */
+  font-size: 14px;
+  font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
   transition: all 0.2s ease;
-  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  min-width: 200px;
+  justify-content: center;
+  z-index: 2001;
+  /* Ensure text is above everything */
 }
 
-.top-reset-btn:hover {
-  color: var(--expense);
-  background: var(--expense-bg);
+
+
+
+.header-reset-btn span {
+  display: inline-block;
 }
 
-.toggle-separator {
-  width: 1px;
-  height: 20px;
-  background: var(--border);
-  margin: 0 4px;
-  align-self: center;
+.header-reset-btn:hover {
+  background-color: #f43f5e;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(244, 63, 94, 0.4);
+  transform: translateY(-2px);
 }
+
+
+
+.header-reset-btn svg {
+  opacity: 0.7;
+}
+
+.header-reset-btn:hover svg {
+  opacity: 1;
+}
+
+.theme-toggle-card {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
+}
+
+
+
 
 .modal-overlay {
   position: fixed;
@@ -1227,6 +1269,15 @@ textarea {
 .modal-icon {
   font-size: 40px;
   margin-bottom: 16px;
+}
+
+.modal-box.destructive {
+  border: 1px solid var(--expense-bg);
+  box-shadow: 0 20px 50px -12px rgba(244, 63, 94, 0.25);
+}
+
+.modal-box.destructive h3 {
+  color: var(--expense);
 }
 
 .modal-box h3 {

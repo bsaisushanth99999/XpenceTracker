@@ -2,12 +2,18 @@ import { NavLink, Outlet } from 'react-router-dom';
 import CsvUpload from './CsvUpload';
 import ParticleSwarm from './ParticleSwarm';
 import ThemeToggle from './ThemeToggle';
+import ResetData from './ResetData';
 
 export default function Layout() {
     return (
         <>
             <ParticleSwarm />
-            <ThemeToggle />
+            <div className="reset-action-container">
+                <ResetData />
+            </div>
+            <div className="theme-action-container">
+                <ThemeToggle />
+            </div>
             <div className="app-layout">
                 <nav className="sidebar">
                     <div className="sidebar-brand">
