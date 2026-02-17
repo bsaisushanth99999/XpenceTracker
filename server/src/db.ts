@@ -5,24 +5,32 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const DB_FILE_PATH = path.join(__dirname, '..', 'data', 'expense-tracker.db');
-const DB_URL = process.env.LIBSQL_URL || `file:${DB_FILE_PATH}`;
-const DB_AUTH_TOKEN = process.env.LIBSQL_AUTH_TOKEN;
+const isVercel = !!process.env.VERCEL;
 
-// In Vercel/serverless, we MUST use a remote database (Turso)
-// Local file databases won't work in serverless environments
-if (process.env.VERCEL && !process.env.LIBSQL_URL) {
-  console.error('ERROR: LIBSQL_URL environment variable is required in Vercel');
-  console.error('Please set LIBSQL_URL in your Vercel project settings');
-}
+let DB_URL: string;
 
-// Ensure data directory exists if using local file (for local dev only)
-if (DB_URL.startsWith('file:')) {
-  const dir = path.dirname(DB_FILE_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+if (isVercel) {
+  // On Vercel, MUST use remote Turso database
+  DB_URL = process.env.LIBSQL_URL || '';
+  if (!DB_URL) {
+    console.error('ERROR: LIBSQL_URL environment variable is required in Vercel');
+    console.error('Please set LIBSQL_URL in your Vercel project settings');
+  }
+} else {
+  // Local development: use file-based SQLite
+  const DB_FILE_PATH = path.join(__dirname, '..', 'data', 'expense-tracker.db');
+  DB_URL = process.env.LIBSQL_URL || `file:${DB_FILE_PATH}`;
+
+  // Ensure data directory exists for local dev only
+  if (DB_URL.startsWith('file:')) {
+    const dir = path.dirname(DB_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
   }
 }
+
+const DB_AUTH_TOKEN = process.env.LIBSQL_AUTH_TOKEN;
 
 export const db = createClient({
   url: DB_URL,
