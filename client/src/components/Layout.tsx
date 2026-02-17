@@ -1,27 +1,9 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { useState } from 'react';
 import CsvUpload from './CsvUpload';
 import ParticleSwarm from './ParticleSwarm';
 import ThemeToggle from './ThemeToggle';
 
 export default function Layout() {
-    const [showReset, setShowReset] = useState(false);
-    const [resetting, setResetting] = useState(false);
-
-    const handleReset = async () => {
-        setResetting(true);
-        try {
-            const res = await fetch('/api/transactions', { method: 'DELETE' });
-            if (!res.ok) throw new Error('Failed to reset');
-            // Reload the page for a clean slate
-            window.location.reload();
-        } catch (err) {
-            alert('Reset failed. Please try again.');
-            setResetting(false);
-            setShowReset(false);
-        }
-    };
-
     return (
         <>
             <ParticleSwarm />
@@ -59,48 +41,12 @@ export default function Layout() {
                     </div>
                     <div className="sidebar-footer">
                         <CsvUpload />
-                        <button
-                            className="reset-btn"
-                            onClick={() => setShowReset(true)}
-                        >
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                <path d="M2 4h12M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            Reset All Data
-                        </button>
                     </div>
                 </nav>
                 <main className="main-content">
                     <Outlet />
                 </main>
             </div>
-
-            {/* Confirmation modal */}
-            {showReset && (
-                <div className="modal-overlay" onClick={() => !resetting && setShowReset(false)}>
-                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-icon">⚠️</div>
-                        <h3>Reset All Data?</h3>
-                        <p>This will permanently erase <strong>all transactions</strong>, <strong>income records</strong>, and <strong>goals</strong>. This cannot be undone.</p>
-                        <div className="modal-actions">
-                            <button
-                                className="btn-secondary"
-                                onClick={() => setShowReset(false)}
-                                disabled={resetting}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="btn-danger"
-                                onClick={handleReset}
-                                disabled={resetting}
-                            >
-                                {resetting ? 'Erasing...' : 'Yes, Erase Everything'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

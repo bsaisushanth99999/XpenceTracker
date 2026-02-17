@@ -1142,47 +1142,47 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  max-width: 300px;
+  width: auto;
 }
 
 .desc-main {
   font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
 .desc-notes {
   font-size: 11px;
   color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-style: italic;
 }
 
 /* --- Reset All Data & Modals --- */
-.reset-btn {
+.top-reset-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 6px;
-  padding: 8px 12px;
-  margin-top: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 4px 10px;
+  border: none;
   background: transparent;
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 100%;
+  border-radius: var(--radius-sm);
 }
 
-.reset-btn:hover {
-  border-color: var(--expense);
+.top-reset-btn:hover {
   color: var(--expense);
   background: var(--expense-bg);
+}
+
+.toggle-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 4px;
+  align-self: center;
 }
 
 .modal-overlay {

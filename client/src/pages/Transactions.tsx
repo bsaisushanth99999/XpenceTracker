@@ -77,7 +77,6 @@ export default function Transactions() {
                                                 <th>Amount</th>
                                                 <th>Category</th>
                                                 <th>Description</th>
-                                                <th>Type</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -94,9 +93,6 @@ export default function Transactions() {
                                                     <td className="col-desc">
                                                         <div className="desc-main">{txn.description}</div>
                                                         {txn.notes && <div className="desc-notes">{txn.notes}</div>}
-                                                    </td>
-                                                    <td>
-                                                        <span className={`type-badge ${txn.type}`}>{txn.type}</span>
                                                     </td>
                                                 </tr>
                                             ))}
