@@ -7,7 +7,9 @@ function getMonthOptions(): { value: string; label: string }[] {
     // Show last 12 months + current
     for (let i = 0; i < 13; i++) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const val = d.toISOString().slice(0, 7);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const val = `${y}-${m}`;
         const label = d.toLocaleDateString('en-IN', { year: 'numeric', month: 'long' });
         options.push({ value: val, label });
     }
@@ -19,7 +21,8 @@ export default function FilterBar() {
     const categories = useCategories();
     const monthOptions = getMonthOptions();
 
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const hasActiveFilters = filters.categories.length > 0 || filters.month !== currentMonth;
 
     const toggleCategory = (cat: string) => {

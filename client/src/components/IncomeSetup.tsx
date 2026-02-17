@@ -11,8 +11,13 @@ export default function IncomeSetup({ onComplete, onCancel, month }: IncomeSetup
     const [amount, setAmount] = useState('');
     const [saving, setSaving] = useState(false);
 
-    const targetMonth = month || new Date().toISOString().slice(0, 7);
-    const displayMonth = new Date(targetMonth + '-01').toLocaleDateString('en-IN', { year: 'numeric', month: 'long' });
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const targetMonth = month || currentMonth;
+
+    // Parse targetMonth (YYYY-MM) safely to local date for display
+    const [y, m] = targetMonth.split('-').map(Number);
+    const displayMonth = new Date(y, m - 1, 1).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
