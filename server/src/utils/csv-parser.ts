@@ -79,6 +79,15 @@ function normalizeType(raw: string): 'income' | 'expense' {
     return 'expense';
 }
 
+function normalizeCategory(raw: string): string {
+    const trimmed = raw.trim();
+    if (!trimmed) return 'Uncategorized';
+    // Title Case: capitalize first letter of each word
+    return trimmed
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function parseCSV(buffer: { toString(encoding?: string): string }): ParsedRow[] {
     const content = buffer.toString('utf-8');
     const records = parse(content, {
@@ -106,7 +115,7 @@ export function parseCSV(buffer: { toString(encoding?: string): string }): Parse
     return records.map((row) => ({
         date: normalizeDate(row[dateCol] ?? ''),
         amount: normalizeAmount(row[amountCol] ?? '0'),
-        category: (categoryCol ? row[categoryCol]?.trim() : null) || 'Uncategorized',
+        category: normalizeCategory(categoryCol ? row[categoryCol] ?? '' : ''),
         description: (descCol ? row[descCol]?.trim() : null) || '',
         notes: (notesCol ? row[notesCol]?.trim() : null) || '',
         type: typeCol ? normalizeType(row[typeCol] ?? '') : 'expense',

@@ -6,8 +6,9 @@ import {
 import { CategoryBreakdown, TimeSeriesPoint } from '../types';
 
 const COLORS = [
-    '#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6',
-    '#06b6d4', '#ec4899', '#14b8a6', '#f97316', '#64748b',
+    '#FF6B6B', '#4ECDC4', '#FFD93D', '#6C5CE7', '#FF8A5C',
+    '#2ECC71', '#E84393', '#00B894', '#0984E3', '#FDCB6E',
+    '#E17055', '#00CEC9', '#D63031', '#6AB04C', '#F8B500',
 ];
 
 const formatCurrency = (val: number | undefined | null) => {
