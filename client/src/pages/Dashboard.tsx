@@ -62,11 +62,9 @@ export default function Dashboard() {
     }, [filters.month]);
 
     // Determine which income to show
-    // If specific month & stored income exists -> use stored income
+    // If budgeted income exists (for any mode) -> use it
     // Else -> use transaction income sum
-    const displayedIncome = (filters.month !== 'all' && monthlyIncome !== null)
-        ? monthlyIncome
-        : summary.totalIncome;
+    const displayedIncome = monthlyIncome !== null ? monthlyIncome : summary.totalIncome;
 
     // Balance = Income - Expenses
     // If using stored income, balance reflects that.
@@ -84,7 +82,7 @@ export default function Dashboard() {
                 <div className="summary-item income">
                     <div className="summary-header">
                         <span className="summary-label">
-                            {filters.month !== 'all' && monthlyIncome !== null ? 'Budgeted Income' : 'Total Income'}
+                            {monthlyIncome !== null ? 'Budgeted Income' : 'Total Income'}
                         </span>
                         {filters.month !== 'all' && (
                             <button className="edit-btn" onClick={() => setShowIncomeSetup(true)}>

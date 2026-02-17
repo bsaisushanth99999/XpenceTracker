@@ -15,13 +15,23 @@ router.get('/total', async (_req: Request, res: Response) => {
 });
 
 // GET /api/income/:month - Get budgeted income for a specific month
+// Falls back to the most recent previous month's income if not set
 router.get('/:month', async (req: Request, res: Response) => {
     try {
         const result = await db.execute({
             sql: 'SELECT * FROM monthly_income WHERE month = ?',
             args: [String(req.params.month)]
         });
-        res.json(result.rows[0] || null);
+        if (result.rows[0]) {
+            res.json(result.rows[0]);
+        } else {
+            // Auto-carry-forward: find the most recent PREVIOUS month's income
+            const fallback = await db.execute({
+                sql: 'SELECT * FROM monthly_income WHERE month < ? ORDER BY month DESC LIMIT 1',
+                args: [String(req.params.month)]
+            });
+            res.json(fallback.rows[0] || null);
+        }
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ error: err.message });
