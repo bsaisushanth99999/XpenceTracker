@@ -2,7 +2,10 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { FilterState } from '../types';
 
 function getCurrentMonth(): string {
-    return new Date().toISOString().slice(0, 7); // YYYY-MM
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
 }
 
 const defaultFilters: FilterState = {

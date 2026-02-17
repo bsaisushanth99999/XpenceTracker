@@ -41,7 +41,8 @@ export default function Dashboard() {
                 } else {
                     setMonthlyIncome(null);
                     // Only show setup if it's the CURRENT month and we have no income set
-                    const currentMonth = new Date().toISOString().slice(0, 7);
+                    const now = new Date();
+                    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
                     if (targetMonth === currentMonth) {
                         setShowIncomeSetup(true);
                     }

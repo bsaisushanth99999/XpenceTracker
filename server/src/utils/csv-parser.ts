@@ -55,7 +55,10 @@ function normalizeDate(raw: string): string {
     // Fallback: try Date constructor
     const parsed = new Date(trimmed);
     if (!isNaN(parsed.getTime())) {
-        return parsed.toISOString().split('T')[0];
+        const y = parsed.getFullYear();
+        const m = String(parsed.getMonth() + 1).padStart(2, '0');
+        const d = String(parsed.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
     }
 
     return datePart || trimmed;
