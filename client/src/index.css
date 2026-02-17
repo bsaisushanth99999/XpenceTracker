@@ -221,7 +221,7 @@ textarea {
 /* --- Filter Bar --- */
 .filter-bar {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: var(--radius-lg);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
@@ -380,7 +380,7 @@ textarea {
 
 .summary-item {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: var(--radius);
   padding: 14px 16px;
   box-shadow: var(--shadow);
@@ -452,7 +452,7 @@ textarea {
 
 .chart-container {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: var(--radius-lg);
   padding: 16px;
   box-shadow: var(--shadow);
@@ -467,7 +467,7 @@ textarea {
 
 .chart-empty {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: var(--radius-lg);
   padding: 40px 16px;
   text-align: center;
@@ -479,7 +479,7 @@ textarea {
 .table-wrapper {
   overflow-x: auto;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
 }
@@ -563,7 +563,7 @@ textarea {
   padding: 2px 8px;
   border-radius: 10px;
   background: var(--bg);
-  border: 1px solid var(--border);
+  border: none;
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
@@ -746,7 +746,7 @@ textarea {
 
 .goal-card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: var(--radius);
   padding: 14px 16px;
   display: flex;

@@ -119,8 +119,6 @@ export function SpendingOverTime({ data }: TimeChartProps) {
                         labelFormatter={(d) => new Date(d).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                         contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '13px' }}
                     />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Area type="monotone" dataKey="income" stroke="#10b981" fill="#10b98133" strokeWidth={2} name="Income" />
                     <Area type="monotone" dataKey="expenses" stroke="#f43f5e" fill="#f43f5e33" strokeWidth={2} name="Expenses" />
                 </AreaChart>
             </ResponsiveContainer>

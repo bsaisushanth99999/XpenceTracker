@@ -25,9 +25,9 @@ function buildFilterQuery(query: Record<string, any>): {
     }
     if (query.categories) {
         const catStr = String(query.categories);
-        const cats = catStr.split(',').map((c) => c.trim());
-        // In LibSQL/SQLite, IN (?, ?) works
-        conditions.push(`category IN (${cats.map(() => '?').join(',')})`);
+        const cats = catStr.split(',').map((c) => c.trim().toLowerCase());
+        // Case-insensitive category matching
+        conditions.push(`LOWER(TRIM(category)) IN (${cats.map(() => '?').join(',')})`);
         params.push(...cats);
     }
     if (query.type && query.type !== 'all') {
@@ -98,8 +98,15 @@ router.get('/summary', async (req: Request, res: Response) => {
 router.get('/by-category', async (req: Request, res: Response) => {
     try {
         const { where, params } = buildFilterQuery(req.query);
+        // Group by normalized (Title Case) category so 'food' and 'Food' merge
         const result = await db.execute({
-            sql: `SELECT category, SUM(amount) as total, type FROM transactions ${where} GROUP BY category, type ORDER BY total DESC`,
+            sql: `SELECT 
+                    UPPER(SUBSTR(TRIM(LOWER(category)), 1, 1)) || SUBSTR(TRIM(LOWER(category)), 2) as category,
+                    SUM(amount) as total,
+                    type
+                  FROM transactions ${where}
+                  GROUP BY LOWER(TRIM(category)), type
+                  ORDER BY total DESC`,
             args: params
         });
         res.json(result.rows);
@@ -143,8 +150,13 @@ router.get('/months', async (_req: Request, res: Response) => {
 // GET /api/transactions/categories
 router.get('/categories', async (_req: Request, res: Response) => {
     try {
-        const result = await db.execute('SELECT DISTINCT category FROM transactions ORDER BY category ASC');
-        // result.rows is array of objects { category: 'Food' }
+        // Deduplicate categories case-insensitively, return Title Case
+        const result = await db.execute(
+            `SELECT DISTINCT 
+                UPPER(SUBSTR(TRIM(LOWER(category)), 1, 1)) || SUBSTR(TRIM(LOWER(category)), 2) as category
+             FROM transactions
+             ORDER BY category ASC`
+        );
         res.json(result.rows.map((r: any) => r.category));
     } catch (err: any) {
         console.error(err);

@@ -9,36 +9,27 @@ export interface ParsedRow {
     type: 'income' | 'expense';
 }
 
-// Flexible column name mapping (include common bank/export formats like "To", "Payee")
-const COLUMN_MAP: Record<string, string[]> = {
-    date: ['date', 'transaction_date', 'trans_date', 'txn_date', 'Date'],
-    amount: ['amount', 'value', 'sum', 'total', 'Amount'],
-    category: ['category', 'cat', 'group', 'Category'],
-    description: ['description', 'desc', 'memo', 'note', 'Description', 'Memo', 'To', 'Payee', 'From', 'Narration'],
-    notes: ['notes', 'note', 'comment', 'comments', 'Notes'],
-    type: ['type', 'transaction_type', 'txn_type', 'kind', 'Type'],
-};
-
-function findColumn(headers: string[], candidates: string[]): string | null {
-    for (const candidate of candidates) {
-        const found = headers.find(
-            (h) => h.trim().toLowerCase() === candidate.toLowerCase()
-        );
-        if (found) return found;
-    }
-    return null;
+/**
+ * Normalize category to Title Case so "food", "Food", "FOOD" all become "Food".
+ * Trims whitespace and handles empty strings.
+ */
+function normalizeCategory(raw: string): string {
+    const trimmed = raw.replace(/\s+/g, ' ').trim();
+    if (!trimmed) return 'Uncategorized';
+    return trimmed
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function normalizeDate(raw: string): string {
-    // Try parsing various date formats
     const trimmed = raw.trim();
-    // Strip time part if present (e.g. "01/02/2026 08:43:56" or "2026-01-02 10:00:00")
+    // Strip time part if present (e.g. "01/02/2026 08:43:56")
     const datePart = trimmed.split(/\s+/)[0];
 
     // Already ISO format (YYYY-MM-DD)
     if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return datePart;
 
-    // DD/MM/YYYY or D/M/YYYY (date with optional time) - common in bank exports
+    // DD/MM/YYYY or D/M/YYYY
     const slashMatch = datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
     if (slashMatch) {
         const [, d, m, y] = slashMatch;
@@ -66,26 +57,20 @@ function normalizeDate(raw: string): string {
 
 function normalizeAmount(raw: string | number): number {
     if (typeof raw === 'number') return Math.abs(raw);
-    // Remove currency symbols, commas, spaces
     const cleaned = raw.replace(/[^0-9.\-]/g, '');
     return Math.abs(parseFloat(cleaned) || 0);
 }
 
-function normalizeType(raw: string): 'income' | 'expense' {
-    const lower = raw.trim().toLowerCase();
-    if (['income', 'credit', 'deposit', 'salary', 'earning'].includes(lower)) {
-        return 'income';
+/**
+ * Find a matching column header (case-insensitive, trimmed).
+ * Returns the actual header name found in the CSV, or null.
+ */
+function findCol(headers: string[], candidates: string[]): string | null {
+    for (const c of candidates) {
+        const found = headers.find((h) => h.trim().toLowerCase() === c.toLowerCase());
+        if (found) return found;
     }
-    return 'expense';
-}
-
-function normalizeCategory(raw: string): string {
-    const trimmed = raw.trim();
-    if (!trimmed) return 'Uncategorized';
-    // Title Case: capitalize first letter of each word
-    return trimmed
-        .toLowerCase()
-        .replace(/\b\w/g, (c) => c.toUpperCase());
+    return null;
 }
 
 export function parseCSV(buffer: { toString(encoding?: string): string }): ParsedRow[] {
@@ -101,23 +86,57 @@ export function parseCSV(buffer: { toString(encoding?: string): string }): Parse
 
     const headers = Object.keys(records[0]);
 
-    const dateCol = findColumn(headers, COLUMN_MAP.date);
-    const amountCol = findColumn(headers, COLUMN_MAP.amount);
-    const categoryCol = findColumn(headers, COLUMN_MAP.category);
-    const descCol = findColumn(headers, COLUMN_MAP.description);
-    const notesCol = findColumn(headers, COLUMN_MAP.notes);
-    const typeCol = findColumn(headers, COLUMN_MAP.type);
+    // --- Map CSV columns to our fields ---
+    // The user's CSV format:  Date | To | Amount | category | From | Payee
+    const dateCol = findCol(headers, ['date', 'transaction_date', 'trans_date', 'txn_date']);
+    const amountCol = findCol(headers, ['amount', 'value', 'sum', 'total']);
+    const categoryCol = findCol(headers, ['category', 'cat', 'group']);
+    const toCol = findCol(headers, ['to', 'description', 'desc', 'memo', 'narration']);
+    const fromCol = findCol(headers, ['from', 'source', 'payment_method']);
+    const payeeCol = findCol(headers, ['payee', 'upi_id', 'account']);
+    const notesCol = findCol(headers, ['notes', 'note', 'comment', 'comments']);
+    const typeCol = findCol(headers, ['type', 'transaction_type', 'txn_type', 'kind']);
 
     if (!dateCol || !amountCol) {
-        throw new Error('CSV must contain at least "date" and "amount" columns');
+        throw new Error('CSV must contain at least "Date" and "Amount" columns');
     }
 
-    return records.map((row) => ({
-        date: normalizeDate(row[dateCol] ?? ''),
-        amount: normalizeAmount(row[amountCol] ?? '0'),
-        category: normalizeCategory(categoryCol ? row[categoryCol] ?? '' : ''),
-        description: (descCol ? row[descCol]?.trim() : null) || '',
-        notes: (notesCol ? row[notesCol]?.trim() : null) || '',
-        type: typeCol ? normalizeType(row[typeCol] ?? '') : 'expense',
-    }));
+    return records.map((row) => {
+        // Description = "To" column (payee/recipient name)
+        const to = toCol ? (row[toCol] ?? '').trim() : '';
+        // From = payment method (e.g. "Paid via CRED")
+        const from = fromCol ? (row[fromCol] ?? '').trim() : '';
+        // Payee = UPI ID / reference
+        const payee = payeeCol ? (row[payeeCol] ?? '').trim() : '';
+        // Notes = explicit notes column if it exists
+        const notes = notesCol ? (row[notesCol] ?? '').trim() : '';
+
+        // Build description from "To" field
+        const description = to;
+
+        // Build notes: combine From + Payee + explicit notes
+        const notesParts: string[] = [];
+        if (from) notesParts.push(from);
+        if (payee) notesParts.push(payee);
+        if (notes) notesParts.push(notes);
+        const combinedNotes = notesParts.join(' | ');
+
+        // Type defaults to expense if no type column
+        let type: 'income' | 'expense' = 'expense';
+        if (typeCol) {
+            const raw = (row[typeCol] ?? '').trim().toLowerCase();
+            if (['income', 'credit', 'deposit', 'salary', 'earning'].includes(raw)) {
+                type = 'income';
+            }
+        }
+
+        return {
+            date: normalizeDate(row[dateCol] ?? ''),
+            amount: normalizeAmount(row[amountCol] ?? '0'),
+            category: normalizeCategory(categoryCol ? row[categoryCol] ?? '' : ''),
+            description,
+            notes: combinedNotes,
+            type,
+        };
+    });
 }
