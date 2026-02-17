@@ -54,7 +54,9 @@
 }
 
 /* --- Reset & Base --- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -73,7 +75,10 @@ body {
   line-height: 1.5;
 }
 
-input, button, select, textarea {
+input,
+button,
+select,
+textarea {
   font-family: inherit;
   font-size: inherit;
 }
@@ -359,10 +364,47 @@ input, button, select, textarea {
   font-weight: 700;
 }
 
-.summary-item.income .summary-value { color: var(--income); }
-.summary-item.expense .summary-value { color: var(--expense); }
-.summary-item.balance .summary-value { color: var(--balance-positive); }
-.summary-item.balance .summary-value[data-negative="true"] { color: var(--balance-negative); }
+.summary-item.income .summary-value {
+  color: var(--income);
+}
+
+.summary-item.expense .summary-value {
+  color: var(--expense);
+}
+
+.summary-item.balance .summary-value {
+  color: var(--balance-positive);
+}
+
+.summary-item.balance .summary-value[data-negative="true"] {
+  color: var(--balance-negative);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+
+.edit-btn:hover {
+  background: var(--surface-hover);
+}
 
 /* --- Charts Grid --- */
 .charts-grid {
@@ -456,8 +498,13 @@ input, button, select, textarea {
   white-space: nowrap;
 }
 
-.col-amount.income { color: var(--income); }
-.col-amount.expense { color: var(--expense); }
+.col-amount.income {
+  color: var(--income);
+}
+
+.col-amount.expense {
+  color: var(--expense);
+}
 
 .col-desc {
   max-width: 250px;
@@ -551,9 +598,17 @@ input, button, select, textarea {
   font-size: 11px;
 }
 
-.result-item { color: var(--text-secondary); }
-.result-item.inserted { color: var(--income); }
-.result-item.skipped { color: var(--text-muted); }
+.result-item {
+  color: var(--text-secondary);
+}
+
+.result-item.inserted {
+  color: var(--income);
+}
+
+.result-item.skipped {
+  color: var(--text-muted);
+}
 
 .dismiss-btn {
   background: none;
@@ -617,6 +672,33 @@ input, button, select, textarea {
 
 .btn-primary:hover {
   background: var(--accent-hover);
+}
+
+.btn-secondary {
+  padding: 8px 16px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.income-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.income-modal-actions button {
+  flex: 1;
 }
 
 .goals-list {
@@ -730,11 +812,14 @@ input, button, select, textarea {
     left: 0;
     right: 0;
     width: 100%;
-    height: auto;
+    min-height: 60px;
     flex-direction: row;
     border-right: none;
     border-top: 1px solid var(--sidebar-border);
-    z-index: 100;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--sidebar-bg);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
   }
 
   .sidebar-brand {
@@ -922,7 +1007,8 @@ input, button, select, textarea {
 }
 
 .income-submit:hover {
-  background: #059669; /* darker emerald */
+  background: #059669;
+  /* darker emerald */
 }
 
 /* --- Month Group Headers --- */
@@ -951,8 +1037,13 @@ input, button, select, textarea {
   font-weight: 500;
 }
 
-.month-summary .income { color: var(--income); }
-.month-summary .expense { color: var(--expense); }
+.month-summary .income {
+  color: var(--income);
+}
+
+.month-summary .expense {
+  color: var(--expense);
+}
 
 /* --- Tweaks for simplified Transaction table --- */
 .txn-list .table-wrapper {

@@ -19,7 +19,8 @@ export default function FilterBar() {
     const categories = useCategories();
     const monthOptions = getMonthOptions();
 
-    const hasActiveFilters = filters.categories.length > 0 || filters.month === 'all';
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const hasActiveFilters = filters.categories.length > 0 || filters.month !== currentMonth;
 
     const toggleCategory = (cat: string) => {
         setFilters((prev) => ({
